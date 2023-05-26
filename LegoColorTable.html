@@ -1,0 +1,554 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+    <title>VDWWD - Lego Colors</title>
+
+    <!-- style sheets -->
+    <link href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+
+    <style>
+        .container {
+            max-width: 1200px;
+        }
+
+        .ColorTable td {
+            width: 50px;
+            height: 80px;
+            border: 1px solid #000;
+            vertical-align: top;
+        }
+
+        .ColorTable .transparent {
+            background: repeating-linear-gradient( 45deg, #000, #fff 4px, #000 8px, #fff 4px);
+            opacity: 0.1;
+        }
+
+        .ColorTable div {
+            padding: 5px;
+        }
+
+        .ColorTable .selected .badge {
+            background-color: red !important;
+        }
+
+        .badge {
+            border: 1px solid black;
+        }
+
+        .dataTables_filter input {
+            width: 75%;
+            max-width: 200px;
+        }
+    </style>
+
+</head>
+<body>
+
+    <!-- van der Waal Webdesign -->
+    <!-- https://www.vanderwaal.eu -->
+
+    <div class="container mx-auto m-3">
+
+        <div class="row">
+            <div class="col-12 col-lg-8">
+
+                <div class="overflow-auto" id="colors-grid"></div>
+
+            </div>
+            <div class="col-12 col-md-6 col-lg-4 pt-5">
+
+                <table class="table table-striped" id="colors-table">
+                    <thead>
+                        <tr>
+                            <th>
+                                &nbsp;
+                            </th>
+                            <th>
+                                Name
+                            </th>
+                            <th class="text-end">
+                                ColorID
+                            </th>
+                            <th class="text-end">
+                                Sort
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- script libraries -->
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js" integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            var $grid = $('#colors-grid');
+            var $table = $('#colors-table');
+            var $tbody = $table.find('tbody');
+            var items_per_row = 15;
+
+            //add the colors to the grid
+            var html = '<table class="ColorTable mt-5"><tr>';
+
+            for (var i = 0; i < ColorJson.length; i++) {
+
+                //15 per row
+                if (i > 0 && i % items_per_row === 0) {
+                    html += '</tr><tr>';
+                }
+
+                html += '<td class="grid-item" id="color-' + ColorJson[i].colorID + '" style="background-color: ' + ColorJson[i].hex + '" data-bs-toggle="tooltip" title="' + ColorJson[i].name + '">';
+                html += '<span class="badge bg-light text-dark m-1 p-1 position-absolute">' + ColorJson[i].colorID + '</span>';
+
+                //is the color transparent
+                if (ColorJson[i].name.toLowerCase().indexOf('trans') > -1) {
+                    html += '<div class="h-100 transparent"></div>';
+                }
+
+                html += '</td>';
+            }
+
+            $grid.html(html + '</tr></table>');
+
+            //add the colors to the table
+            for (var i = 0; i < ColorJson.length; i++) {
+                var row = '<tr data-id="' + ColorJson[i].colorID + '">';
+                row += '<td style="background-color: ' + ColorJson[i].hex + '"></td>';
+                row += '<td>' + ColorJson[i].name + '</td>';
+                row += '<td class="text-end">' + ColorJson[i].colorID + '</td>';
+                row += '<td class="text-end">' + ColorJson[i].sortorder + '</td>';
+                row += '</tr>';
+
+                $tbody.append(row);
+            }
+
+            //create the datatable
+            $table.DataTable({
+                'stateSave': true,
+                'searching': true,
+                'paging': false,
+                'info': false,
+                'language': {
+                    'search': ''
+                },
+                columnDefs: [
+                    {
+                        orderable: false,
+                        targets: 0
+                    }
+                ],
+                order: [[1, 'asc']]
+            });
+
+            //bind row hover on the table to highlight the label red in the grid
+            var $currentColor;
+            var $rows = $table.find('tbody tr');
+            $rows.mouseover(function () {
+                $currentColor = $('#color-' + $(this).data('id'));
+                $currentColor.addClass('selected');
+            });
+            $rows.mouseout(function () {
+                $currentColor.removeClass('selected');
+            });
+
+            //bind the tooltips
+            [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]')).map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            });
+        });
+    </script>
+
+    <!-- json with all the colors -->
+
+    <script>
+        var ColorJson = [{
+            "colorID": 1,
+            "name": "White",
+            "hex": "#FFFFFF",
+            "sortorder": 1
+        }, {
+            "colorID": 11,
+            "name": "Black",
+            "hex": "#212121",
+            "sortorder": 2
+        }, {
+            "colorID": 91,
+            "name": "Light Brown",
+            "hex": "#99663E",
+            "sortorder": 3
+        }, {
+            "colorID": 88,
+            "name": "Reddish Brown",
+            "hex": "#7D442C",
+            "sortorder": 4
+        }, {
+            "colorID": 8,
+            "name": "Brown",
+            "hex": "#674123",
+            "sortorder": 5
+        }, {
+            "colorID": 120,
+            "name": "Dark Brown",
+            "hex": "#4E382F",
+            "sortorder": 6
+        }, {
+            "colorID": 99,
+            "name": "Very Light Bluish Gray",
+            "hex": "#E4E8E8",
+            "sortorder": 7
+        }, {
+            "colorID": 86,
+            "name": "Light Bluish Gray",
+            "hex": "#B1B4C7",
+            "sortorder": 8
+        }, {
+            "colorID": 9,
+            "name": "Light Gray",
+            "hex": "#9C9C9C",
+            "sortorder": 9
+        }, {
+            "colorID": 85,
+            "name": "Dark Bluish Gray",
+            "hex": "#5A5D60",
+            "sortorder": 10
+        }, {
+            "colorID": 10,
+            "name": "Dark Gray",
+            "hex": "#695A5A",
+            "sortorder": 11
+        }, {
+            "colorID": 23,
+            "name": "Pink",
+            "hex": "#F2CDD6",
+            "sortorder": 12
+        }, {
+            "colorID": 104,
+            "name": "Bright Pink",
+            "hex": "#F4BCD9",
+            "sortorder": 13
+        }, {
+            "colorID": 47,
+            "name": "Dark Pink",
+            "hex": "#E853B4",
+            "sortorder": 14
+        }, {
+            "colorID": 71,
+            "name": "Magenta",
+            "hex": "#B22175",
+            "sortorder": 15
+        }, {
+            "colorID": 154,
+            "name": "Lavender",
+            "hex": "#D3BAE3",
+            "sortorder": 16
+        }, {
+            "colorID": 157,
+            "name": "Medium Lavender",
+            "hex": "#C682D9",
+            "sortorder": 17
+        }, {
+            "colorID": 73,
+            "name": "Medium Violet",
+            "hex": "#9A8AE4",
+            "sortorder": 18
+        }, {
+            "colorID": 245,
+            "name": "Lilac",
+            "hex": "#8056CE",
+            "sortorder": 19
+        }, {
+            "colorID": 24,
+            "name": "Light Purple",
+            "hex": "#AA3293",
+            "sortorder": 20
+        }, {
+            "colorID": 89,
+            "name": "Purple",
+            "hex": "#7A098D",
+            "sortorder": 21
+        }, {
+            "colorID": 62,
+            "name": "Dark Purple",
+            "hex": "#611583",
+            "sortorder": 22
+        }, {
+            "colorID": 2,
+            "name": "Tan",
+            "hex": "#E9DCA4",
+            "sortorder": 23
+        }, {
+            "colorID": 69,
+            "name": "Dark Tan",
+            "hex": "#B39A6A",
+            "sortorder": 24
+        }, {
+            "colorID": 90,
+            "name": "Light Nougat",
+            "hex": "#F8CEB1",
+            "sortorder": 25
+        }, {
+            "colorID": 28,
+            "name": "Nougat",
+            "hex": "#F6B27F",
+            "sortorder": 26
+        }, {
+            "colorID": 150,
+            "name": "Medium Nougat",
+            "hex": "#DBA35D",
+            "sortorder": 27
+        }, {
+            "colorID": 58,
+            "name": "Sand Red",
+            "hex": "#C28C81",
+            "sortorder": 28
+        }, {
+            "colorID": 5,
+            "name": "Red",
+            "hex": "#AA0613",
+            "sortorder": 29
+        }, {
+            "colorID": 59,
+            "name": "Dark Red",
+            "hex": "#650F18",
+            "sortorder": 30
+        }, {
+            "colorID": 152,
+            "name": "Light Aqua",
+            "hex": "#D1EFEA",
+            "sortorder": 31
+        }, {
+            "colorID": 105,
+            "name": "Bright Light Blue",
+            "hex": "#C1CFED",
+            "sortorder": 32
+        }, {
+            "colorID": 72,
+            "name": "Maersk Blue",
+            "hex": "#84C2D7",
+            "sortorder": 33
+        }, {
+            "colorID": 42,
+            "name": "Medium Blue",
+            "hex": "#8CAAD8",
+            "sortorder": 34
+        }, {
+            "colorID": 55,
+            "name": "Sand Blue",
+            "hex": "#8B98AB",
+            "sortorder": 35
+        }, {
+            "colorID": 7,
+            "name": "Blue",
+            "hex": "#304FA6",
+            "sortorder": 36
+        }, {
+            "colorID": 63,
+            "name": "Dark Blue",
+            "hex": "#2B3457",
+            "sortorder": 37
+        }, {
+            "colorID": 156,
+            "name": "Medium Azure",
+            "hex": "#7CCDDF",
+            "sortorder": 38
+        }, {
+            "colorID": 153,
+            "name": "Dark Azure",
+            "hex": "#479ADF",
+            "sortorder": 39
+        }, {
+            "colorID": 39,
+            "name": "Dark Turquoise",
+            "hex": "#36A29E",
+            "sortorder": 40
+        }, {
+            "colorID": 96,
+            "name": "Very Light Orange",
+            "hex": "#F9DFA5",
+            "sortorder": 41
+        }, {
+            "colorID": 110,
+            "name": "Bright Light Orange",
+            "hex": "#F5CD10",
+            "sortorder": 42
+        }, {
+            "colorID": 31,
+            "name": "Medium Orange",
+            "hex": "#F5AA37",
+            "sortorder": 43
+        }, {
+            "colorID": 4,
+            "name": "Orange",
+            "hex": "#F48221",
+            "sortorder": 44
+        }, {
+            "colorID": 68,
+            "name": "Dark Orange",
+            "hex": "#AB5712",
+            "sortorder": 45
+        }, {
+            "colorID": 103,
+            "name": "Bright Light Yellow",
+            "hex": "#F9F48D",
+            "sortorder": 46
+        }, {
+            "colorID": 33,
+            "name": "Light Yellow",
+            "hex": "#FCE7A4",
+            "sortorder": 47
+        }, {
+            "colorID": 3,
+            "name": "Yellow",
+            "hex": "#F6E60E",
+            "sortorder": 48
+        }, {
+            "colorID": 236,
+            "name": "Neon Yellow",
+            "hex": "#FFFC00",
+            "sortorder": 49
+        }, {
+            "colorID": 220,
+            "name": "Coral",
+            "hex": "#F58374",
+            "sortorder": 50
+        }, {
+            "colorID": 158,
+            "name": "Yellowish Green",
+            "hex": "#E7F2A7",
+            "sortorder": 51
+        }, {
+            "colorID": 48,
+            "name": "Sand Green",
+            "hex": "#A3C0A3",
+            "sortorder": 52
+        }, {
+            "colorID": 155,
+            "name": "Olive Green",
+            "hex": "#A7AD53",
+            "sortorder": 53
+        }, {
+            "colorID": 34,
+            "name": "Lime",
+            "hex": "#BFE600",
+            "sortorder": 54
+        }, {
+            "colorID": 36,
+            "name": "Bright Green",
+            "hex": "#2ED02D",
+            "sortorder": 55
+        }, {
+            "colorID": 6,
+            "name": "Green",
+            "hex": "#1E953B",
+            "sortorder": 56
+        }, {
+            "colorID": 80,
+            "name": "Dark Green",
+            "hex": "#325643",
+            "sortorder": 57
+        }, {
+            "colorID": 98,
+            "name": "Trans-Orange",
+            "hex": "#DF7314",
+            "sortorder": 58
+        }, {
+            "colorID": 18,
+            "name": "Trans-Neon Orange",
+            "hex": "#F44538",
+            "sortorder": 59
+        }, {
+            "colorID": 17,
+            "name": "Trans-Red",
+            "hex": "#950417",
+            "sortorder": 60
+        }, {
+            "colorID": 12,
+            "name": "Trans-Clear",
+            "hex": "transparent",
+            "sortorder": 61
+        }, {
+            "colorID": 15,
+            "name": "Trans-Light Blue",
+            "hex": "#71BDC4",
+            "sortorder": 62
+        }, {
+            "colorID": 14,
+            "name": "Trans-Dark Blue",
+            "hex": "#1B206B",
+            "sortorder": 63
+        }, {
+            "colorID": 19,
+            "name": "Trans-Yellow",
+            "hex": "#E4FD2E",
+            "sortorder": 64
+        }, {
+            "colorID": 16,
+            "name": "Trans-Neon Green",
+            "hex": "#BCFB00",
+            "sortorder": 65
+        }, {
+            "colorID": 20,
+            "name": "Trans-Green",
+            "hex": "#287923",
+            "sortorder": 66
+        }, {
+            "colorID": 13,
+            "name": "Trans-Brown",
+            "hex": "#929584",
+            "sortorder": 67
+        }, {
+            "colorID": 228,
+            "name": "Satin Trans-Clear",
+            "hex": "#FFFFFE",
+            "sortorder": 68
+        }, {
+            "colorID": 60,
+            "name": "Milky White",
+            "hex": "#D4D3DD",
+            "sortorder": 69
+        }, {
+            "colorID": 66,
+            "name": "Pearl Light Gray",
+            "hex": "#AEB6C0",
+            "sortorder": 70
+        }, {
+            "colorID": 95,
+            "name": "Flat Silver",
+            "hex": "#8E949C",
+            "sortorder": 71
+        }, {
+            "colorID": 67,
+            "name": "Metallic Silver",
+            "hex": "#C0C0C0",
+            "sortorder": 72
+        }, {
+            "colorID": 65,
+            "name": "Metallic Gold",
+            "hex": "#B18A12",
+            "sortorder": 73
+        }, {
+            "colorID": 22,
+            "name": "Chrome Silver",
+            "hex": "#DCDCDC",
+            "sortorder": 74
+        }, {
+            "colorID": 21,
+            "name": "Chrome Gold",
+            "hex": "#F0F3E1",
+            "sortorder": 75
+        }];
+    </script>
+
+</body>
+</html>
