@@ -2,4 +2,4 @@ A reference table for the available colors of the Lego 2x4 brick as a StandAlone
 
 You can see and download the Studio file on BrickLink here: https://www.bricklink.com/v3/studio/design.page?idModel=439540
 
-A MS SQL script with the table data is also available.
+An MS SQL script with the table data is also available.
