@@ -6,3 +6,4 @@ An MS SQL script with the table data is also available.
 
 &nbsp;
 
+<img src="https://lego-cmf.vanderwaal.eu/images/legocolortable.png">
